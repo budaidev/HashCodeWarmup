@@ -1,4 +1,5 @@
 from collections import namedtuple
+import numpy as np
 
 filename = './GoogleExample/b_basic.in.txt'
 Client = namedtuple('Client', ['like', 'dislike'])
@@ -12,8 +13,8 @@ def readExample(filename):
         for i in range(0,num):
             like = set(reader.readline().strip().split(" ")[1:])
             dislike = set(reader.readline().strip().split(" ")[1:])
-            ingredients |=  like
-            ingredients |=  dislike
+            ingredients |= like
+            ingredients |= dislike
             c = Client(like, dislike,)
             clients.append(c)
     return clients, ingredients
@@ -42,6 +43,18 @@ def convertToVector(clients, mappings):
         dislikeMatrix.append(l2)
     return likeMatrix, dislikeMatrix
 
+def calculateScore(np_like, np_dislike, np_ing):
+    dislike_vec = 1 - np_dislike.dot(np_ing)
+    like_score = np_like - np_ing
+    like_vec = 1- np.any(like_score>0.5, axis=1).astype(int)
+    return np.sum(like_vec.dot(dislike_vec))
+
 clients, ingredients = readExample(filename)
 mappings = getMapping(ingredients)
 like, dislike = convertToVector(clients, mappings)
+
+np_like = np.array(like)
+np_dislike = np.array(dislike)
+
+vec = np.array([1,1,1,1,1,1])
+calculateScore(np_like, np_dislike, vec)
