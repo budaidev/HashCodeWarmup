@@ -44,7 +44,8 @@ def convertToVector(clients, mappings):
     return likeMatrix, dislikeMatrix
 
 def calculateScore(np_like, np_dislike, np_ing):
-    dislike_vec = 1 - np_dislike.dot(np_ing)
+    dislike_score = np_dislike.dot(np_ing)
+    dislike_vec = 1 - np.where(dislike_score>0.5, 1, dislike_score)
     like_score = np_like - np_ing
     like_vec = 1- np.any(like_score>0.5, axis=1).astype(int)
     return np.sum(like_vec.dot(dislike_vec))
